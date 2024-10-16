@@ -1,0 +1,19 @@
+
+Query string
+
+Used in pagination
+===============================
+prameter: skip: int = 0, limit: int = 10
+=> fake_items_db[skip : skip + limit]
+
+addtional parameter
+===================================
+prameter: itemId:int,q:str|None=None,short:bool=False
+
+item = {"item_id": itemId}
+if q:               
+    item.update({"q":q})
+    
+if not short:
+    item.update({"description":"long message"})
+
