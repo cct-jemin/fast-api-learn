@@ -17,3 +17,20 @@ if q:
 if not short:
     item.update({"description":"long message"})
 
+valiodation 
+for addtional parametter
+=============================
+=>default null and not required
+q: str | None = None
+// Using annotation
+=> max_length =50 and default null
+-Annotated[str | None, Query(max_length=50)]=None
+q: Annotated[str | None, Query(min_length=3, max_length=50, regex="^fixedquery$")]=None
+=>for list
+q:Annotated[list,Query()] = []
+//model validation
+class FilterParams(BaseModel):
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal["created_at", "updated_at"] = "created_at"
+    tags: list[str] = []
