@@ -1,10 +1,9 @@
 from pymongo import MongoClient
 from bson import ObjectId
-MONGO_DETAILS = "mongodb://localhost:27017"  # Replace with your MongoDB URI
+MONGO_DETAILS = "mongodb://localhost:27017" 
 
 client = MongoClient(MONGO_DETAILS)
-database = client.mydb  # Replace 'mydb' with your database name
-
+database = client.mydb  
 item_collection = database.get_collection("items_collection")
 
 # Helper function to convert MongoDB documents to JSON-friendly format
