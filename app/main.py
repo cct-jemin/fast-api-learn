@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
-from app.routers import items
+from app.routers import items,fileupload
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -18,6 +18,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # Include the router
 app.include_router(items.router)
+app.include_router(fileupload.router)
 
 @app.get("/")
 def read_root():
