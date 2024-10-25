@@ -2,9 +2,16 @@ from fastapi import FastAPI, HTTPException, Request
 from app.routers import items,fileupload
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-
+import logging
 
 app = FastAPI()
+# Set up logging
+logging.basicConfig(
+    filename="app/logs/app.log",  
+    level=logging.ERROR,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 # Custom exception handler for validation errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
