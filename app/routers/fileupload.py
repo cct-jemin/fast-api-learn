@@ -24,7 +24,24 @@ ALLOWED_EXTENSIONS = {".txt"}
         
    
 #     return  {"filename": file.filename,"content":data}
-
+@router.post('/upload')
+async def uploadFile(file:UploadFile=File(...)):
+    uploadpath = "app/files/"
+    filename = file.filename
+    if not any(filename.endswith(ext) for ext in ALLOWED_EXTENSIONS):
+        logging.error(f"Invalid file extension for file '{filename}'")
+        raise HTTPException(status_code=400,detail="Invalid extension upload only txt file") 
+    try:
+        if not os.path.exists(uploadpath):
+            os.makedirs(uploadpath)
+            
+        file_location = os.path.join(uploadpath, file.filename)
+        with open(file_location,'wb') as buffer:
+          buffer.write(await file.read())  
+          return {filename:filename,"message":"file uploaded successfully"}
+    except Exception as e:
+        logging.error(f"An error occurred while uploading file '{filename}': {e}")
+        return {"error":str(e)}
 
 @router.get('/readfile/')
 async def readFile(filename:str = Query(..., min_length=1, max_length=100)):
