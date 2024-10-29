@@ -71,4 +71,23 @@ async def writeFile(message:str):
         logging.error(f"an error to write test.txt file {e}")
         return {"error":str(e)}
     
+@router.post('/getfile')
+async def getFile(file:bytes=File(...)):
+    content = file.decode('utf-8')  
+    print(content) 
+    lines = content.split('\n')  
+    return {"content": lines}  
+    
+@router.post('/upload_option')
+async def uploadOption(upload_file:UploadFile = File(...)):
+    path = f"app/files/{upload_file.filename}"
+    print(upload_file)
+    with open(path,'wb') as buffer:
+        shutil.copyfileobj(upload_file.file, buffer)
+        
+    return {  
+        'file': upload_file.filename,  
+        'content': upload_file.content_type,  
+        'path': path,  
+    }
     
