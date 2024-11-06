@@ -28,9 +28,13 @@ ALLOWED_EXTENSIONS = {".txt"}
 async def uploadFile(file:UploadFile=File(...)):
     uploadpath = "app/files/"
     filename = file.filename
+    fileSize = file.size
     if not any(filename.endswith(ext) for ext in ALLOWED_EXTENSIONS):
         logging.error(f"Invalid file extension for file '{filename}'")
         raise HTTPException(status_code=400,detail="Invalid extension upload only txt file") 
+    elif fileSize > 2 * 1024 * 1024:
+        logging.error(f"file size too large. Max size is 2 MB.")
+        raise HTTPException(status_code=400,detail="File size too large. Max size is 2 MB.") 
     try:
         if not os.path.exists(uploadpath):
             os.makedirs(uploadpath)
