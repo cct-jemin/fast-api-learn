@@ -1,8 +1,24 @@
 {
     "Sheet1":{
-        "headers":["Category", "Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"]
+        "headers":["Category", "Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"],
+        "data":{
+            "car-petrol":{
+                "label":"Car Petrol",
+                "type":["Small","Medium"],
+                "Unit":["miles","km","liters"]
+            },
+            "car-electric":{
+                "label":"Car Electric",
+                "type":["Small","Medium"],
+                "Unit":["miles","km","kwh","liters"]
+            }
+        }  
     },
     "Sheet2":{
-        "headers":["name", "marks"]
+        "headers":["name", "marks"],
+        "data":{
+            "jemin":[10,20,30,40],
+            "nilesh":[10,20,30,40]
+        }
     }
 }

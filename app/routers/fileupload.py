@@ -95,37 +95,71 @@ async def getFile(file:bytes=File(...)):
 async def uploadOption(upload_file:UploadFile = File(...)):
     path = f"app/files/{upload_file.filename}"
     ALLOWED_SHEET_NAMES = list(sheet_data.keys())
-    print(ALLOWED_SHEET_NAMES)
+    # print(ALLOWED_SHEET_NAMES)
     with open(path,'wb') as buffer:
         shutil.copyfileobj(upload_file.file, buffer)
-        
+    validation_errors = []    
     try :
+        content = {}
         excel_data = pd.ExcelFile(path)
         sheet_names = excel_data.sheet_names
         for sheet in sheet_names:
-            #sheet name validation
+            sheet_error = None
+            #Sheet name validation
             if sheet not in ALLOWED_SHEET_NAMES:
+                sheet_error = f"Invalid sheet name found: {sheet}"
                 logging.error(f"Invalid sheet name found: {sheet}")
-                raise HTTPException(status_code=400, detail=f"Invalid sheet name: {sheet}")
-            
+                validation_errors.append(sheet_error)
+                continue  
+                # raise HTTPException(status_code=400, detail=f"Invalid sheet name: {sheet}")
             df = excel_data.parse(sheet)
             df = df.fillna(value="")
             actual_headers = list(df.columns)
             
-            #header validation
+            #Header validation
             expectedHeader = sheet_data[sheet]['headers']
-            print(expectedHeader)
             invalid_headers = [header for header in actual_headers if header not in expectedHeader]   
             if invalid_headers:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid headers: {invalid_headers} in {sheet}."
-                )
+                sheet_error = f"Invalid headers: {invalid_headers} in {sheet}."
+                validation_errors.append(sheet_error)
+                continue  
+            
+            #Record validation
+            content[sheet] = df.to_dict(orient='records')
+            for row_num, sheetContent in enumerate(content[sheet], start=1):
+                  if sheet == "Sheet1":
+                    category = sheetContent['Category']
+                    print(category,"jjjj")
+                    print(sheet_data[sheet]["data"],"gggg")
+                    if category not in sheet_data[sheet]["data"]:
+                        validation_errors.append(f"Invalid Category '{category}' in {sheet} at row {row_num}.")
+                        continue
+                    
+                    # Validate Type field
+                    valid_types = sheet_data[sheet]["data"][category]["type"]
+                    record_type = sheetContent.get("Type")
+                    if record_type not in valid_types:
+                        validation_errors.append(f"Invalid Type '{record_type}' for Category '{category}' in {sheet} at row {row_num}.")
+
+                    # Validate Unit field
+                    valid_units = sheet_data[sheet]["data"][category]["Unit"]
+                    record_unit = sheetContent.get("Unit")
+                    if record_unit not in valid_units:
+                        validation_errors.append(f"Invalid Unit '{record_unit}' for Category '{category}' in {sheet} at row {row_num}.")
+            
+                
           
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred during header validation: {e}"
+            detail=f"error in script: {e}"
+        )
+        
+    if validation_errors:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Validation errors: {', '.join(validation_errors)}"
         )
         
     return {  

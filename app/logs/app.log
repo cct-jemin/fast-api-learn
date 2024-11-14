@@ -17,3 +17,42 @@
 2024-10-25 17:49:02,059 - ERROR - Invalid file extension for file 'response_1729857972057.json'
 2024-11-05 15:08:09,379 - ERROR - ile size too large. Max size is 2 MB.
 2024-11-05 15:08:40,238 - ERROR - file size too large. Max size is 2 MB.
+2024-11-06 11:36:46,435 - ERROR - An error occurred while reading file 'test.xlsx': 'charmap' codec can't decode byte 0x9d in position 16: character maps to <undefined>
+2024-11-06 12:03:46,314 - ERROR - An error occurred while reading file 'test.xlsx': Must specify a fill 'value' or 'method'.
+2024-11-06 12:11:47,438 - ERROR - An error occurred while reading file 'test.txt': Excel file format cannot be determined, you must specify an engine manually.
+2024-11-06 13:20:43,514 - ERROR - An error occurred while uploading file 'test.xlsx': [Errno 13] Permission denied: 'app/files/'
+2024-11-06 13:25:19,262 - ERROR - An error occurred while uploading file 'test.xlsx': [Errno 13] Permission denied: 'app/files/test.xlsx'
+2024-11-06 13:40:20,005 - ERROR - An error occurred while uploading file 'test.xlsx': [Errno 13] Permission denied: 'app/files/test.xlsx'
+2024-11-13 12:10:41,231 - ERROR - Invalid file extension for file 'test.xslx'
+2024-11-13 12:22:46,511 - ERROR - An error occurred while reading file 'test.xlsx': cannot access local variable 'content' where it is not associated with a value
+2024-11-13 13:12:53,304 - ERROR - Invalid sheet name found: Sheetee2
+2024-11-13 13:48:26,877 - ERROR - Invalid sheet name found: Sheetss1
+2024-11-13 13:54:35,496 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:45:42,194 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:45:42,194 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:46:51,149 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:46:51,149 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:47:12,901 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:47:12,901 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:47:43,120 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:47:43,120 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:48:37,752 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:48:37,752 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:51:11,578 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:51:11,579 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 14:53:05,273 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 14:53:05,273 - ERROR - Invalid sheet name found: Sheetss2
+2024-11-13 18:42:54,726 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:47:31,762 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:48:31,442 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:49:22,903 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:50:07,508 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:50:49,030 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:51:07,395 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:51:46,731 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:52:32,465 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-13 18:56:58,667 - ERROR - Invalid sheet name found: Sheetcc1
+2024-11-14 11:08:42,679 - ERROR - Invalid sheet name found: Sheets2
+2024-11-14 11:11:20,707 - ERROR - Invalid sheet name found: Sheets2
+2024-11-14 11:11:35,791 - ERROR - Invalid sheet name found: Sheets2
+2024-11-14 11:12:12,224 - ERROR - Invalid sheet name found: Sheets2
