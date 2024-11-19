@@ -5,6 +5,10 @@ MONGO_DETAILS = "mongodb://localhost:27017"
 client = MongoClient(MONGO_DETAILS)
 database = client.mydb  
 item_collection = database.get_collection("items_collection")
+category_collection = database.get_collection("category")
+catdetail_collection = database.get_collection("catdetail")
+notch_category_collection = database.get_collection("notch-category")
+notch_sub_category_collection = database.get_collection("notch-sub-category")
 
 # Helper function to convert MongoDB documents to JSON-friendly format
 def item_helper(item) -> dict:

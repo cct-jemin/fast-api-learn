@@ -1,0 +1,48 @@
+{
+    "Sheet1":{
+        "headers":["Category","Sub-cat","Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"],
+        "data":{
+            "companyFacilities":{
+                "label":"Company Facilities",
+                "attributeSubCategory":{
+                    "gas":{
+                        "label":"Gas",
+                        "type":["gas","greenGas"]
+                    },
+                    "fuels":{
+                        "label":"Fuels",
+                        "type":["fuelsGaseous","fuelsLiquid"]
+                    },
+                    "fugitiveEmissions":{
+                        "label":"Fugitive Emissions",
+                        "type":["fugitiveEmissions"]
+                    }
+                }
+            },
+            "companyVehicles":{
+                "label":"Company Vehicles",
+                "attributeSubCategory":{
+                    "cars":{
+                        "label":"Cars",
+                        "type":["carPetrol","carDiesel","carAverage","carHybrid","carElectric"]                  },
+                    "vans":{
+                        "label":"Vans",
+                        "type" : ["vans"]
+                    },
+                    "trucks":{
+                        "label":"Trucks",
+                        "type":["hgv","hgvRefrigerated"]
+                    }
+                }
+            }
+            
+        }  
+    },
+    "Sheet2":{
+        "headers":["name", "marks"],
+        "data":{
+            "jemin":[10,20,30,40],
+            "nilesh":[10,20,30,40]
+        }
+    }
+}
