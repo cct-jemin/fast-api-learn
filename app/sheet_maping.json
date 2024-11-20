@@ -1,0 +1,8 @@
+{
+    "Sheet1": { 
+        "headers" : ["Category","Sub-cat","Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"] 
+    },
+    "Sheet2": { 
+        "headers" : ["Category","Sub-cat","Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"]  
+    }
+}

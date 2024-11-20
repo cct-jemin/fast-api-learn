@@ -19,6 +19,9 @@ with open('app/sheet_validate.json','r') as file:
 with open('app/main_sheet.json','r') as mainfile:
     main_sheet_data = json.load(mainfile) 
     
+with open('app/sheet_maping.json','r') as sheetfile:
+    sheet_headers = json.load(sheetfile) 
+    
     
 # @router.post("/upload/")
 # async def upload_file(file:UploadFile):
@@ -242,7 +245,7 @@ async def readMultisheetFile(filename:str = Query(..., min_length=1, max_length=
 @router.post('/category-upload')
 async def uploadCategory(upload_file:UploadFile = File(...)):
     path = f"app/files/{upload_file.filename}"
-    ALLOWED_SHEET_NAMES = list(main_sheet_data.keys())
+    ALLOWED_SHEET_NAMES = list(sheet_headers.keys())
     with open(path,'wb') as buffer:
         shutil.copyfileobj(upload_file.file, buffer)
     validation_errors = []    
@@ -258,13 +261,12 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
                 logging.error(f"Invalid sheet name found: {sheet}")
                 validation_errors.append(sheet_error)
                 continue  
-                # raise HTTPException(status_code=400, detail=f"Invalid sheet name: {sheet}")
             df = excel_data.parse(sheet)
             df = df.fillna(value="")
             actual_headers = list(df.columns)
             
             #Header validation
-            expectedHeader = main_sheet_data[sheet]['headers']
+            expectedHeader = sheet_headers[sheet]['headers']
             invalid_headers = [header for header in actual_headers if header not in expectedHeader]   
             if invalid_headers:
                 sheet_error = f"Invalid headers: {invalid_headers} in {sheet}."
@@ -273,85 +275,82 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
             
             #Record validation
             content[sheet] = df.to_dict(orient='records')
-            if sheet == "Sheet1":
-                catDetail = notch_category_collection.aggregate([
-                    {
-                        "$lookup": {
-                            "from": "notch-sub-category",
-                            "let": { "categoryIdStr": { "$toString": "$_id" } }, 
-                            "pipeline": [
-                                {
-                                    "$match": {
-                                        "$expr": { "$eq": ["$category_id", "$$categoryIdStr"] }  
-                                    }
-                                },
-                                 {
-                                    "$project": {
-                                        "_id": 0,
-                                        "sub_cat_name": 1,
-                                        "label": 1,
-                                        "type": 1
-                                    }
+            catDetail = notch_category_collection.aggregate([
+                {
+                    "$lookup": {
+                        "from": "notch-sub-category",
+                        "let": { "categoryIdStr": { "$toString": "$_id" } }, 
+                        "pipeline": [
+                            {
+                                "$match": {
+                                    "$expr": { "$eq": ["$category_id", "$$categoryIdStr"] }  
                                 }
-                            ],
-                            "as": "attributeSubCategory"
-                        }
-                    },
-                    {
-                        "$project": {
-                            "_id": 0,
-                            "category_name": 1,
-                            "label": 1,
-                            "attributeSubCategory": 1
-                        }
+                            },
+                                {
+                                "$project": {
+                                    "_id": 0,
+                                    "sub_cat_name": 1,
+                                    "label": 1,
+                                    "type": 1
+                                }
+                            }
+                        ],
+                        "as": "attributeSubCategory"
                     }
-                ])
+                },
+                {
+                    "$project": {
+                        "_id": 0,
+                        "category_name": 1,
+                        "label": 1,
+                        "attributeSubCategory": 1
+                    }
+                }
+            ])
+            
+            output = {item["category_name"]: item for item in catDetail}
+            # pprint(output)
+            # return False
+            # for categoryData in catDetail:
+            #     category_name = categoryData["category_name"]
+            #     if categoryData["catdetail"]: 
+            #         cat_detail = categoryData["catdetail"]
+            #         output[category_name] = {  "label": categoryData["label"]}
+            #         output[category_name]['attributeSubCategory'] = {}
+            #         for subCategoryData in cat_detail:
+            #             output[category_name]['attributeSubCategory'][subCategoryData["sub_cat_name"]] = {
+            #                 "type": subCategoryData["type"],
+            #                 "label": subCategoryData["label"]
+            #             }
+                        
+            for row_num, sheetContent in enumerate(content[sheet], start=1):
+                category = sheetContent['Category']
+                subcategory = sheetContent['Sub-cat']        
+                configData = output
+                # configData = main_sheet_data
+                # Validate Category field
+                catlabels = [value['label'] for key, value in configData.items() if 'label' in value]
+                if category not in catlabels:
+                    validation_errors.append(f"Invalid Category '{category}' in {sheet} at row {row_num}.")
+                    continue
                 
-                
+                # Validate SubCategory field
+                camelCaseCategory = pydash.strings.camel_case(category)
+                category_data = configData[camelCaseCategory]
+                attribute_subcategories = {
+                    sub["label"]: sub for sub in category_data.get("attributeSubCategory", [])
+                }
                
-                output = {item["category_name"]: item for item in catDetail}
-                # pprint(output)
-                # return False
-                # for categoryData in catDetail:
-                #     category_name = categoryData["category_name"]
-                #     if categoryData["catdetail"]: 
-                #         cat_detail = categoryData["catdetail"]
-                #         output[category_name] = {  "label": categoryData["label"]}
-                #         output[category_name]['attributeSubCategory'] = {}
-                #         for subCategoryData in cat_detail:
-                #             output[category_name]['attributeSubCategory'][subCategoryData["sub_cat_name"]] = {
-                #                 "type": subCategoryData["type"],
-                #                 "label": subCategoryData["label"]
-                #             }
-                            
-                for row_num, sheetContent in enumerate(content[sheet], start=1):
-                    category = sheetContent['Category']
-                    subcategory = sheetContent['Sub-cat']        
-                    configData = output
-                    # configData = main_sheet_data[sheet]["data"]
-                    catlabels = [value['label'] for key, value in configData.items() if 'label' in value]
-                    if category not in catlabels:
-                        validation_errors.append(f"Invalid Category '{category}' in {sheet} at row {row_num}.")
-                        continue
-                    
-                    # Validate SubCategory field
-                    camelCaseCategory = pydash.strings.camel_case(category)
-                    category_data = configData[camelCaseCategory]
-                    attribute_subcategories = {
-                        sub["sub_cat_name"]: sub for sub in category_data.get("attributeSubCategory", [])
-                    }
-        
-                    #create key value pair for subcat 
-                    if subcategory not in attribute_subcategories:
-                        validation_errors.append(f"Invalid sub Category '{subcategory}' for Category '{category}' in {sheet} at row {row_num}.")
-                        continue
-                    
-                    # Validate Type field
-                    valid_types = attribute_subcategories[subcategory].get("type", [])
-                    print(valid_types)
-                    record_type = sheetContent.get("Type")
-                    if record_type not in valid_types:
-                        validation_errors.append(f"Invalid Type '{record_type}' for Category '{category}' and Sub category '{subcategory}' in {sheet} at row {row_num}.")
+                #create key value pair for subcat 
+                if subcategory not in attribute_subcategories:
+                    validation_errors.append(f"Invalid sub Category '{subcategory}' for Category '{category}' in {sheet} at row {row_num}.")
+                    continue
+                
+                # Validate Type field
+                valid_types = attribute_subcategories[subcategory].get("type", [])
+                record_type = sheetContent.get("Type")
+                if record_type not in valid_types:
+                    validation_errors.append(f"Invalid Type '{record_type}' for Category '{category}' and Sub category '{subcategory}' in {sheet} at row {row_num}.")
 
             
                 
