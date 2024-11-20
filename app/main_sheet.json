@@ -3,40 +3,48 @@
         "headers":["Category","Sub-cat","Type", "Class", "Unit", "Scope", "Conversion Factor", "Fuel Factor"],
         "data":{
             "companyFacilities":{
+                "category_name": "companyFacilities",
                 "label":"Company Facilities",
-                "attributeSubCategory":{
-                    "gas":{
+                "attributeSubCategory":[
+                    {
+                        "sub_cat_name":"gas",
                         "label":"Gas",
                         "type":["gas","greenGas"]
                     },
-                    "fuels":{
+                    {
+                        "sub_cat_name":"fuels",
                         "label":"Fuels",
                         "type":["fuelsGaseous","fuelsLiquid"]
                     },
-                    "fugitiveEmissions":{
+                    {
+                        "sub_cat_name":"fugitiveEmissions",
                         "label":"Fugitive Emissions",
                         "type":["fugitiveEmissions"]
                     }
-                }
+                ]
             },
             "companyVehicles":{
                 "label":"Company Vehicles",
-                "attributeSubCategory":{
-                    "cars":{
+                "category_name": "companyVehicles",
+                "attributeSubCategory":[
+                    {
+                        "sub_cat_name":"cars",
                         "label":"Cars",
                         "type":["carPetrol","carDiesel","carAverage","carHybrid","carElectric"]                  },
-                    "vans":{
+                    {
+                        "sub_cat_name":"vans",
                         "label":"Vans",
                         "type" : ["vans"]
                     },
-                    "trucks":{
+                    {
+                        "sub_cat_name":"trucks",
                         "label":"Trucks",
                         "type":["hgv","hgvRefrigerated"]
                     }
-                }
+                ]
             }
             
-        }  
+        }
     },
     "Sheet2":{
         "headers":["name", "marks"],

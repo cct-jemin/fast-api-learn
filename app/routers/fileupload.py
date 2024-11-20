@@ -284,36 +284,45 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
                                     "$match": {
                                         "$expr": { "$eq": ["$category_id", "$$categoryIdStr"] }  
                                     }
+                                },
+                                 {
+                                    "$project": {
+                                        "_id": 0,
+                                        "sub_cat_name": 1,
+                                        "label": 1,
+                                        "type": 1
+                                    }
                                 }
                             ],
-                            "as": "catdetail"
+                            "as": "attributeSubCategory"
                         }
                     },
                     {
                         "$project": {
+                            "_id": 0,
                             "category_name": 1,
-                            "label":1,
-                            "catdetail.sub_cat_name":1,
-                            "catdetail.label": 1,
-                            "catdetail.type": 1,
-                            "catdetail.unit": 1
+                            "label": 1,
+                            "attributeSubCategory": 1
                         }
                     }
                 ])
                 
-                pprint(catDetail)
-                output = {}
-                for categoryData in catDetail:
-                    category_name = categoryData["category_name"]
-                    if categoryData["catdetail"]: 
-                        cat_detail = categoryData["catdetail"]
-                        output[category_name] = {  "label": categoryData["label"]}
-                        output[category_name]['attributeSubCategory'] = {}
-                        for subCategoryData in cat_detail:
-                            output[category_name]['attributeSubCategory'][subCategoryData["sub_cat_name"]] = {
-                                "type": subCategoryData["type"],
-                                "label": subCategoryData["label"]
-                            }
+                
+               
+                output = {item["category_name"]: item for item in catDetail}
+                # pprint(output)
+                # return False
+                # for categoryData in catDetail:
+                #     category_name = categoryData["category_name"]
+                #     if categoryData["catdetail"]: 
+                #         cat_detail = categoryData["catdetail"]
+                #         output[category_name] = {  "label": categoryData["label"]}
+                #         output[category_name]['attributeSubCategory'] = {}
+                #         for subCategoryData in cat_detail:
+                #             output[category_name]['attributeSubCategory'][subCategoryData["sub_cat_name"]] = {
+                #                 "type": subCategoryData["type"],
+                #                 "label": subCategoryData["label"]
+                #             }
                             
                 for row_num, sheetContent in enumerate(content[sheet], start=1):
                     category = sheetContent['Category']
@@ -327,12 +336,19 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
                     
                     # Validate SubCategory field
                     camelCaseCategory = pydash.strings.camel_case(category)
-                    if subcategory not in  main_sheet_data[sheet]["data"][camelCaseCategory]["attributeSubCategory"]:
+                    category_data = configData[camelCaseCategory]
+                    attribute_subcategories = {
+                        sub["sub_cat_name"]: sub for sub in category_data.get("attributeSubCategory", [])
+                    }
+        
+                    #create key value pair for subcat 
+                    if subcategory not in attribute_subcategories:
                         validation_errors.append(f"Invalid sub Category '{subcategory}' for Category '{category}' in {sheet} at row {row_num}.")
                         continue
                     
                     # Validate Type field
-                    valid_types = configData[camelCaseCategory]['attributeSubCategory'][subcategory]['type']
+                    valid_types = attribute_subcategories[subcategory].get("type", [])
+                    print(valid_types)
                     record_type = sheetContent.get("Type")
                     if record_type not in valid_types:
                         validation_errors.append(f"Invalid Type '{record_type}' for Category '{category}' and Sub category '{subcategory}' in {sheet} at row {row_num}.")
