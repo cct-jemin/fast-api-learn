@@ -9,6 +9,7 @@ category_collection = database.get_collection("category")
 catdetail_collection = database.get_collection("catdetail")
 notch_category_collection = database.get_collection("notch-category")
 notch_sub_category_collection = database.get_collection("notch-sub-category")
+v2_store = database.get_collection("v2_store")
 
 # Helper function to convert MongoDB documents to JSON-friendly format
 def item_helper(item) -> dict:

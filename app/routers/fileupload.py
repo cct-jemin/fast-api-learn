@@ -5,7 +5,7 @@ import pandas as pd
 import logging
 import json
 # from app.models import category_model,catdetail_model
-from app.database import category_collection,catdetail_collection,notch_category_collection
+from app.database import category_collection,notch_category_collection,v2_store
 import pydash
 from pprint import pprint
 
@@ -249,6 +249,7 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
     with open(path,'wb') as buffer:
         shutil.copyfileobj(upload_file.file, buffer)
     validation_errors = []    
+    valid_data = {}
     try :
         content = {}
         excel_data = pd.ExcelFile(path)
@@ -326,6 +327,11 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
             for row_num, sheetContent in enumerate(content[sheet], start=1):
                 category = sheetContent['Category']
                 subcategory = sheetContent['Sub-cat']        
+                record_type = sheetContent['Type']
+                unit = sheetContent['Unit']
+                conversionFactor = sheetContent['Conversion Factor']
+                fuelFactor = sheetContent["Fuel Factor"]
+                
                 configData = output
                 # configData = main_sheet_data
                 # Validate Category field
@@ -348,11 +354,26 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
                 
                 # Validate Type field
                 valid_types = attribute_subcategories[subcategory].get("type", [])
-                record_type = sheetContent.get("Type")
+                
                 if record_type not in valid_types:
                     validation_errors.append(f"Invalid Type '{record_type}' for Category '{category}' and Sub category '{subcategory}' in {sheet} at row {row_num}.")
+                    continue
+                
+                # Prepare data for insertion
+                collection_name = camelCaseCategory
+                subcategory_key = pydash.strings.camel_case(subcategory)
+                record_data = {
+                    "unit": unit,
+                    "conversionFactor": conversionFactor,
+                    "fuelFactor": fuelFactor
+                }
+                if collection_name not in valid_data:
+                    valid_data[collection_name] = {}
+                if subcategory_key not in valid_data[collection_name]:
+                    valid_data[collection_name][subcategory_key] = record_data
 
-            
+                
+              
                 
           
     except Exception as e:
@@ -367,6 +388,16 @@ async def uploadCategory(upload_file:UploadFile = File(...)):
             status_code=400,
             detail=f"Validation errors: {', '.join(validation_errors)}"
         )
+        
+    # Insert validated data into a collection  
+    formatted_documents = [
+        {
+            "category": category,
+            "subcategories": subcategories
+        }
+        for category, subcategories in valid_data.items()
+    ]
+    v2_store.insert_many(formatted_documents)
         
     return {  
         'file': upload_file.filename,  
