@@ -7,7 +7,23 @@ import json
 # from app.models import category_model,catdetail_model
 from app.database import category_collection,notch_category_collection,v2_store
 import pydash
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from pprint import pprint
+from typing import Optional
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
+AWS_REGION = os.getenv("AWS_REGION")
+
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION,
+)
+
 
 
 router = APIRouter()
@@ -245,14 +261,39 @@ async def readMultisheetFile(filename:str = Query(..., min_length=1, max_length=
 @router.post('/category-upload')
 async def uploadCategory(upload_file:UploadFile = File(...)):
     path = f"app/files/{upload_file.filename}"
+    if not any(upload_file.filename.endswith(ext) for ext in {".xlsx"}):
+        logging.error(f"Invalid file extension for file '{upload_file.filename}'")
+        raise HTTPException(status_code=400,detail="Invalid extension") 
+    
     ALLOWED_SHEET_NAMES = list(sheet_headers.keys())
-    with open(path,'wb') as buffer:
-        shutil.copyfileobj(upload_file.file, buffer)
+    try :
+        with open(path, 'wb') as buffer:
+            file_content = await upload_file.read() 
+            buffer.write(file_content)
+            
+        # Reset the file pointer to the start
+        upload_file.file.seek(0)
+
+        # Upload file to S3
+        # s3_key = f"demo/{upload_file.filename}"
+        # s3_client.put_object(
+        #     Bucket=AWS_BUCKET_NAME,
+        #     Key=s3_key,
+        #     Body=file_content,
+        #     ContentType=upload_file.content_type
+        # )
+    except NoCredentialsError:
+        raise HTTPException(status_code=500, detail="AWS credentials not found")
+    except PartialCredentialsError:
+        raise HTTPException(status_code=500, detail="Incomplete AWS credentials")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
+    
     validation_errors = []    
     valid_data = {}
     try :
         content = {}
-        excel_data = pd.ExcelFile(path)
+        excel_data = pd.ExcelFile(path, engine='openpyxl')
         sheet_names = excel_data.sheet_names
         for sheet in sheet_names:
             sheet_error = None
